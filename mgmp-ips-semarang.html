@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGMP IPS Kota Semarang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D6;
+    --paper-light:#F6F1E6;
+    --paper-deep:#E3D9C2;
+    --ink:#1F2D3D;
+    --ink-soft:#4A5568;
+    --ink-faint:#8A93A0;
+    --brass:#B07C31;
+    --brass-dark:#8C5F22;
+    --contour:#3F6357;
+    --contour-light:#5C8577;
+    --pin:#A63D40;
+    --line: rgba(31,45,61,0.16);
+    --line-strong: rgba(31,45,61,0.32);
+    --radius: 2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass-dark);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;background:var(--brass-dark);
+    display:inline-block;
+  }
+  a{color:inherit;text-decoration:none;}
+  ul{margin:0;padding:0;list-style:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+
+  /* subtle paper texture + grid, like a chart background */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ============ HEADER ============ */
+  header{
+    position:sticky; top:0; z-index:100;
+    background:rgba(237,230,214,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .headbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    max-width:1140px; margin:0 auto;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand svg{width:38px;height:38px;flex-shrink:0;}
+  .brand-text .title{font-size:18px; font-weight:600; line-height:1.15;}
+  .brand-text .sub{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.08em; color:var(--ink-soft); text-transform:uppercase;}
+
+  nav.mainnav{display:flex; gap:2px; align-items:center;}
+  nav.mainnav > ul{display:flex; gap:2px;}
+  nav.mainnav > ul > li{position:relative;}
+  nav.mainnav > ul > li > a, nav.mainnav > ul > li > button.navtop{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    padding:10px 14px;
+    display:flex; align-items:center; gap:6px;
+    border:none; background:none; cursor:pointer; color:var(--ink);
+    text-transform:uppercase;
+  }
+  nav.mainnav > ul > li > a:hover, nav.mainnav > ul > li > button.navtop:hover,
+  nav.mainnav > ul > li.active > a, nav.mainnav > ul > li.active > button.navtop{
+    color:var(--pin);
+  }
+  nav.mainnav .caret{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-top:-3px;transition:transform .2s;}
+  li.has-dropdown:hover .caret{transform:rotate(225deg); margin-top:3px;}
+
+  .dropdown{
+    position:absolute; top:100%; left:0;
+    background:var(--paper-light);
+    border:1px solid var(--line-strong);
+    min-width:260px;
+    padding:8px;
+    opacity:0; visibility:hidden; transform:translateY(4px);
+    transition:all .16s ease;
+    box-shadow:0 12px 24px rgba(31,45,61,0.12);
+  }
+  li.has-dropdown:hover .dropdown, li.has-dropdown.open .dropdown{
+    opacity:1; visibility:visible; transform:translateY(0);
+  }
+  .dropdown a{
+    display:block; padding:10px 12px; font-size:13.5px; color:var(--ink-soft);
+    border-left:2px solid transparent;
+  }
+  .dropdown a:hover{ border-left-color:var(--pin); color:var(--ink); background:var(--paper);}
+
+  .burger{display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px;}
+  .burger span{width:22px; height:2px; background:var(--ink);}
+
+  /* ============ HERO (beranda) ============ */
+  .hero{
+    position:relative; overflow:hidden;
+    padding:88px 28px 96px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .hero .wrap{position:relative; z-index:2; display:grid; grid-template-columns:1.15fr 0.85fr; gap:48px; align-items:center;}
+  .hero h1{
+    font-size:clamp(38px, 5.4vw, 64px);
+    line-height:1.02;
+    font-weight:600;
+    margin:18px 0 22px;
+  }
+  .hero h1 em{font-style:italic; color:var(--contour); font-weight:500;}
+  .hero p.lead{font-size:16.5px; line-height:1.65; color:var(--ink-soft); max-width:46ch; margin-bottom:30px;}
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; letter-spacing:0.05em; text-transform:uppercase;
+    padding:13px 22px;
+    border:1px solid var(--ink);
+    display:inline-flex; align-items:center; gap:8px;
+    cursor:pointer; background:none;
+  }
+  .btn-solid{background:var(--ink); color:var(--paper-light); border-color:var(--ink);}
+  .btn-solid:hover{background:var(--pin); border-color:var(--pin);}
+  .btn-outline:hover{border-color:var(--pin); color:var(--pin);}
+
+  .compass-wrap{position:relative; display:flex; align-items:center; justify-content:center;}
+  .compass-wrap svg{width:100%; max-width:340px; animation:spin 90s linear infinite;}
+  @keyframes spin{ to{transform:rotate(360deg);} }
+  .coord-badge{
+    position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+    background:var(--paper-light); border:1px solid var(--line-strong);
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em;
+    padding:6px 14px; white-space:nowrap;
+  }
+
+  .stat-strip{border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong); background:var(--paper-deep);}
+  .stat-strip .wrap{display:grid; grid-template-columns:repeat(4,1fr); }
+  .stat-strip .stat{padding:22px 20px; border-left:1px solid var(--line-strong); text-align:left;}
+  .stat-strip .stat:first-child{border-left:none;}
+  .stat-strip .num{font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--contour);}
+  .stat-strip .label{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin-top:4px;}
+
+  /* ============ SECTIONS shared ============ */
+  section.block{padding:80px 28px; position:relative;}
+  section.block.alt{background:var(--paper-light);}
+  .block-head{margin-bottom:44px; max-width:640px;}
+  .block-head h2{font-size:clamp(28px,3.6vw,40px); margin-top:14px; font-weight:600;}
+  .block-head p{color:var(--ink-soft); margin-top:14px; line-height:1.6; font-size:15px;}
+
+  .contour-divider{height:34px; overflow:hidden;}
+  .contour-divider svg{width:100%; height:100%;}
+
+  .page{display:none;}
+  .page.active{display:block;}
+
+  /* ============ PROFIL ============ */
+  .subnav-tabs{display:flex; gap:8px; margin-bottom:48px; flex-wrap:wrap; border-bottom:1px solid var(--line-strong); padding-bottom:0;}
+  .subnav-tabs button{
+    font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
+    padding:12px 4px; margin-right:26px; background:none; border:none; cursor:pointer; color:var(--ink-faint);
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .subnav-tabs button.active{color:var(--ink); border-bottom-color:var(--pin);}
+
+  .subpage{display:none;}
+  .subpage.active{display:block;}
+
+  .org-chart{display:flex; flex-direction:column; align-items:center; gap:0; padding:20px 0 10px;}
+  .org-row{display:flex; gap:18px; justify-content:center; flex-wrap:wrap; position:relative; margin-bottom:34px;}
+  .org-row::after{ content:none; }
+  .org-node{
+    background:var(--paper-light); border:1px solid var(--line-strong);
+    padding:16px 20px; text-align:center; min-width:170px;
+    position:relative;
+  }
+  .org-node.primary{background:var(--ink); color:var(--paper-light); border-color:var(--ink);}
+  .org-node .role{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; opacity:0.7;}
+  .org-node .name{font-family:'Fraunces',serif; font-size:16px; margin-top:6px; font-weight:600;}
+  .connector{width:1px; height:26px; background:var(--line-strong); margin:0 auto;}
+
+  .vm-grid{display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line-strong);}
+  .vm-panel{padding:36px 34px;}
+  .vm-panel.visi{border-right:1px solid var(--line-strong); background:var(--paper-light);}
+  .vm-panel .eyebrow{margin-bottom:14px;}
+  .vm-panel p.big{font-family:'Fraunces',serif; font-style:italic; font-size:22px; line-height:1.4; color:var(--contour);}
+  .vm-panel ol{margin-top:16px; padding-left:0; counter-reset:misi;}
+  .vm-panel ol li{
+    counter-increment:misi; padding:10px 0 10px 34px; position:relative; font-size:14.5px; color:var(--ink-soft);
+    border-top:1px solid var(--line); line-height:1.55;
+  }
+  .vm-panel ol li:first-child{border-top:none;}
+  .vm-panel ol li::before{
+    content: counter(misi, decimal-leading-zero);
+    position:absolute; left:0; top:10px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--brass-dark);
+  }
+
+  .proker-list{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line-strong); border:1px solid var(--line-strong); margin-top:10px;}
+  .proker-item{background:var(--paper-light); padding:22px 24px;}
+  .proker-item .tag{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pin);}
+  .proker-item h4{font-size:16.5px; margin-top:8px; font-weight:600;}
+  .proker-item p{font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.55;}
+
+  /* ============ KEGIATAN ============ */
+  .kegiatan-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line-strong); border:1px solid var(--line-strong);}
+  .kegiatan-card{background:var(--paper-light); padding:30px 26px; display:flex; flex-direction:column; gap:14px; min-height:230px;}
+  .kegiatan-card .mark{width:34px; height:34px; border:1.4px solid var(--contour); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--contour); font-family:'JetBrains Mono',monospace; font-size:11px;}
+  .kegiatan-card h4{font-size:17px; font-weight:600; line-height:1.3;}
+  .kegiatan-card p{font-size:13.5px; color:var(--ink-soft); line-height:1.55; flex-grow:1;}
+  .kegiatan-card .status{font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--brass-dark); display:flex; align-items:center; gap:6px;}
+  .kegiatan-card .status::before{content:""; width:6px; height:6px; background:var(--contour); border-radius:50%;}
+
+  /* ============ ARTIKEL ============ */
+  .artikel-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:30px;}
+  .artikel-card{border:1px solid var(--line-strong); background:var(--paper-light); display:flex; flex-direction:column;}
+  .artikel-thumb{height:150px; position:relative; overflow:hidden; border-bottom:1px solid var(--line-strong);}
+  .artikel-body{padding:22px;}
+  .artikel-cat{font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--pin);}
+  .artikel-body h4{font-size:16px; margin-top:10px; font-weight:600; line-height:1.35;}
+  .artikel-body p{font-size:13px; color:var(--ink-soft); margin-top:10px; line-height:1.55;}
+  .artikel-meta{display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-faint);}
+  .artikel-meta a{color:var(--ink); text-decoration:underline; text-underline-offset:3px;}
+
+  /* ============ GALERI ============ */
+  .galeri-grid{display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:150px; gap:10px;}
+  .galeri-item{position:relative; overflow:hidden; border:1px solid var(--line-strong); display:flex; align-items:flex-end; padding:12px;}
+  .galeri-item.tall{grid-row:span 2;}
+  .galeri-item .caption{position:relative; z-index:2; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--paper-light); text-transform:uppercase; letter-spacing:0.04em; line-height:1.4;}
+  .galeri-item::before{content:""; position:absolute; inset:0; z-index:1; opacity:0.9;}
+  .galeri-item::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%); z-index:1;}
+
+  /* ============ DOWNLOAD ============ */
+  .dl-tabs{display:flex; gap:10px; margin-bottom:36px; flex-wrap:wrap;}
+  .dl-tabs button{
+    font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
+    padding:11px 20px; border:1px solid var(--line-strong); background:var(--paper-light); cursor:pointer; color:var(--ink-soft);
+  }
+  .dl-tabs button.active{background:var(--ink); color:var(--paper-light); border-color:var(--ink);}
+  .dl-subpage{display:none;}
+  .dl-subpage.active{display:block;}
+  .dl-group{margin-bottom:36px;}
+  .dl-group h4{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--brass-dark); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--line-strong);}
+  .dl-row{display:flex; align-items:center; justify-content:space-between; padding:14px 4px; border-bottom:1px solid var(--line); gap:16px;}
+  .dl-row:last-child{border-bottom:none;}
+  .dl-name{display:flex; align-items:center; gap:14px; font-size:14px;}
+  .dl-name .ext{font-family:'JetBrains Mono',monospace; font-size:10px; background:var(--contour); color:var(--paper-light); padding:3px 7px; letter-spacing:0.04em;}
+  .dl-name .meta{color:var(--ink-faint); font-size:11.5px; font-family:'JetBrains Mono',monospace;}
+  .dl-btn{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; border:1px solid var(--ink); padding:8px 14px; white-space:nowrap; flex-shrink:0;}
+  .dl-btn:hover{background:var(--ink); color:var(--paper-light);}
+
+  .dl-note{background:var(--paper-deep); border:1px dashed var(--line-strong); padding:20px 24px; font-size:13.5px; color:var(--ink-soft); margin-top:10px; line-height:1.6;}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--ink); color:var(--paper); padding:64px 28px 28px; margin-top:0;}
+  .footer-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; padding-bottom:44px; border-bottom:1px solid rgba(246,241,230,0.15);}
+  footer h5{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--paper); opacity:0.55; margin-bottom:18px;}
+  footer .foot-brand{font-family:'Fraunces',serif; font-size:22px; font-weight:600; margin-bottom:12px;}
+  footer p{color:rgba(246,241,230,0.65); font-size:13.5px; line-height:1.6;}
+  footer ul li{margin-bottom:10px;}
+  footer ul li a{color:rgba(246,241,230,0.75); font-size:13.5px;}
+  footer ul li a:hover{color:var(--paper);}
+  .foot-bottom{display:flex; justify-content:space-between; padding-top:22px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(246,241,230,0.45); flex-wrap:wrap; gap:10px;}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:900px){
+    nav.mainnav{position:fixed; top:73px; left:0; right:0; bottom:0; background:var(--paper); flex-direction:column; align-items:stretch; padding:20px; transform:translateX(100%); transition:transform .25s ease; overflow-y:auto;}
+    nav.mainnav.open{transform:translateX(0);}
+    nav.mainnav > ul{flex-direction:column; width:100%;}
+    nav.mainnav > ul > li{width:100%;}
+    nav.mainnav > ul > li > a, nav.mainnav > ul > li > button.navtop{width:100%; justify-content:space-between; padding:16px 4px; border-bottom:1px solid var(--line);}
+    .dropdown{position:static; opacity:1; visibility:visible; transform:none; display:none; border:none; box-shadow:none; background:var(--paper-deep); padding:0 0 0 14px;}
+    li.has-dropdown.open .dropdown{display:block;}
+    .burger{display:flex;}
+    .hero .wrap{grid-template-columns:1fr; text-align:left;}
+    .compass-wrap{order:-1; max-width:220px; margin:0 auto 20px;}
+    .stat-strip .wrap{grid-template-columns:1fr 1fr;}
+    .stat-strip .stat:nth-child(3){border-left:none;}
+    .vm-grid, .proker-list, .kegiatan-grid, .artikel-grid{grid-template-columns:1fr;}
+    .vm-panel.visi{border-right:none; border-bottom:1px solid var(--line-strong);}
+    .galeri-grid{grid-template-columns:repeat(2,1fr);}
+    .galeri-item.tall{grid-row:span 1;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="headbar">
+    <a href="#" class="brand" data-page="beranda">
+      <svg viewBox="0 0 60 60" fill="none">
+        <circle cx="30" cy="30" r="27" stroke="#1F2D3D" stroke-width="1.4"/>
+        <circle cx="30" cy="30" r="19" stroke="#1F2D3D" stroke-width="0.7" opacity="0.5"/>
+        <path d="M30 8 L34 28 L30 30 L26 28 Z" fill="#A63D40"/>
+        <path d="M30 52 L26 32 L30 30 L34 32 Z" fill="#1F2D3D"/>
+        <circle cx="30" cy="30" r="2.6" fill="#1F2D3D"/>
+        <text x="30" y="6" text-anchor="middle" font-size="5" fill="#1F2D3D" font-family="JetBrains Mono">U</text>
+      </svg>
+      <div class="brand-text">
+        <div class="title">MGMP IPS</div>
+        <div class="sub">Kota Semarang</div>
+      </div>
+    </a>
+
+    <nav class="mainnav" id="mainnav">
+      <ul>
+        <li><a href="#" data-page="beranda">Beranda</a></li>
+
+        <li class="has-dropdown">
+          <button class="navtop">Profil <span class="caret"></span></button>
+          <div class="dropdown">
+            <a href="#" data-page="profil" data-sub="struktur">Struktur Organisasi</a>
+            <a href="#" data-page="profil" data-sub="visimisi">Visi &amp; Misi</a>
+            <a href="#" data-page="profil" data-sub="proker">Program Kerja</a>
+          </div>
+        </li>
+
+        <li class="has-dropdown">
+          <button class="navtop">Kegiatan <span class="caret"></span></button>
+          <div class="dropdown">
+            <a href="#" data-page="kegiatan">Semua Kegiatan &amp; Kemitraan</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-bi">Kerja Sama Bank Indonesia</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-ojk">Kerjasama OJK</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-s1">Kerja Sama Prodi S1 IPS UNNES</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-s2">Kerjasama Prodi S2 UNNES</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-tanoto">Kerjasama Tanoto Foundation</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-inveskids">Kerja Sama Inveskids</a>
+            <a href="#" data-page="kegiatan" data-anchor="k-erlangga">Erlangga</a>
+          </div>
+        </li>
+
+        <li><a href="#" data-page="artikel">Artikel</a></li>
+        <li><a href="#" data-page="galeri">Galeri</a></li>
+
+        <li class="has-dropdown">
+          <button class="navtop">Download <span class="caret"></span></button>
+          <div class="dropdown">
+            <a href="#" data-page="download" data-sub="kelas7">Perangkat Kelas 7</a>
+            <a href="#" data-page="download" data-sub="kelas8">Perangkat Kelas 8</a>
+            <a href="#" data-page="download" data-sub="kelas9">Perangkat Kelas 9</a>
+            <a href="#" data-page="download" data-sub="asesmen">Soal Asesmen</a>
+            <a href="#" data-page="download" data-sub="media">Media Ajar</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <button class="burger" id="burgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ BERANDA ============ -->
+<div class="page active" id="page-beranda">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">6°58′ LS, 110°25′ BT — Semarang, Jawa Tengah</div>
+        <h1>Merajut ruang <em>berpikir</em>,<br>bertukar peta gagasan<br>guru IPS Semarang.</h1>
+        <p class="lead">Musyawarah Guru Mata Pelajaran Ilmu Pengetahuan Sosial Kota Semarang — wadah kolaborasi, pengembangan profesional, dan pemetaan praktik terbaik pembelajaran IPS jenjang SMP se-Kota Semarang.</p>
+        <div class="hero-actions">
+          <button class="btn btn-solid" data-page="profil" data-sub="visimisi">Kenali Kami →</button>
+          <button class="btn btn-outline" data-page="download">Unduh Perangkat Ajar</button>
+        </div>
+      </div>
+      <div class="compass-wrap">
+        <svg viewBox="0 0 300 300" fill="none">
+          <circle cx="150" cy="150" r="130" stroke="#1F2D3D" stroke-width="1"/>
+          <circle cx="150" cy="150" r="105" stroke="#1F2D3D" stroke-width="0.6" opacity="0.4"/>
+          <circle cx="150" cy="150" r="80" stroke="#1F2D3D" stroke-width="0.6" opacity="0.4"/>
+          <g font-family="JetBrains Mono" font-size="11" fill="#1F2D3D">
+            <text x="150" y="30" text-anchor="middle">U</text>
+            <text x="150" y="280" text-anchor="middle">S</text>
+            <text x="278" y="155" text-anchor="middle">T</text>
+            <text x="24" y="155" text-anchor="middle">B</text>
+          </g>
+          <path d="M150 55 L165 150 L150 155 L135 150 Z" fill="#A63D40"/>
+          <path d="M150 245 L135 150 L150 155 L165 150 Z" fill="#1F2D3D"/>
+          <path d="M55 150 L150 143 L150 150 L150 157 Z" fill="#3F6357" opacity="0.75"/>
+          <path d="M245 150 L150 143 L150 150 L150 157 Z" fill="#3F6357" opacity="0.75"/>
+          <circle cx="150" cy="150" r="5" fill="#1F2D3D"/>
+        </svg>
+        <div class="coord-badge">MGMP IPS · EST. KOTA SEMARANG</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stat-strip">
+    <div class="wrap">
+      <div class="stat"><div class="num">7</div><div class="label">Mitra Kerja Sama</div></div>
+      <div class="stat"><div class="num">3</div><div class="label">Jenjang Perangkat Ajar</div></div>
+      <div class="stat"><div class="num">4</div><div class="label">Bidang Koordinasi</div></div>
+      <div class="stat"><div class="num">50+</div><div class="label">Sekolah Terhubung</div></div>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Peta Kegiatan</div>
+        <h2>Kemitraan yang membentang lintas lembaga.</h2>
+        <p>Dari literasi keuangan bersama Bank Indonesia dan OJK, hingga pengembangan akademik bersama UNNES — berikut sorotan program kolaborasi MGMP IPS Kota Semarang.</p>
+      </div>
+      <div class="kegiatan-grid" style="border:1px solid var(--line-strong);">
+        <div class="kegiatan-card">
+          <div class="mark">BI</div>
+          <h4>Kerja Sama Bank Indonesia</h4>
+          <p>Edukasi ekonomi &amp; keuangan, kunjungan belajar ke Kantor Perwakilan BI Jawa Tengah.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card">
+          <div class="mark">S2</div>
+          <h4>Kerjasama Prodi S2 UNNES</h4>
+          <p>Pendampingan riset dan penulisan karya ilmiah bagi guru IPS.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card">
+          <div class="mark">TF</div>
+          <h4>Tanoto Foundation</h4>
+          <p>Pelatihan pembelajaran aktif dan kepemimpinan pembelajaran (PINTAR).</p>
+          <div class="status">Aktif</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:36px;">
+        <button class="btn btn-outline" data-page="kegiatan">Lihat Semua Kegiatan →</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ PROFIL ============ -->
+<div class="page" id="page-profil">
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Profil Organisasi</div>
+        <h2>Siapa kami, dan ke mana arah kami menuju.</h2>
+      </div>
+
+      <div class="subnav-tabs" id="profilTabs">
+        <button data-sub="struktur" class="active">Struktur Organisasi</button>
+        <button data-sub="visimisi">Visi &amp; Misi</button>
+        <button data-sub="proker">Program Kerja</button>
+      </div>
+
+      <!-- Struktur Organisasi -->
+      <div class="subpage active" id="sub-struktur">
+        <p style="color:var(--ink-soft); font-size:14.5px; max-width:60ch; margin-bottom:34px;">Susunan pengurus MGMP IPS Kota Semarang masa bakti berjalan. <em>(Nama pengurus di bawah ini bersifat placeholder — silakan sesuaikan dengan SK kepengurusan terbaru.)</em></p>
+        <div class="org-chart">
+          <div class="org-node primary"><div class="role">Pembina</div><div class="name">Dinas Pendidikan Kota Semarang</div></div>
+          <div class="connector"></div>
+          <div class="org-node primary"><div class="role">Ketua MGMP</div><div class="name">Nama Ketua MGMP</div></div>
+          <div class="connector"></div>
+          <div class="org-row">
+            <div class="org-node"><div class="role">Wakil Ketua</div><div class="name">Nama Wakil Ketua</div></div>
+            <div class="org-node"><div class="role">Sekretaris</div><div class="name">Nama Sekretaris</div></div>
+            <div class="org-node"><div class="role">Bendahara</div><div class="name">Nama Bendahara</div></div>
+          </div>
+          <div class="connector"></div>
+          <div class="org-row">
+            <div class="org-node"><div class="role">Koordinator</div><div class="name">Bidang Kurikulum</div></div>
+            <div class="org-node"><div class="role">Koordinator</div><div class="name">Kegiatan &amp; Kemitraan</div></div>
+            <div class="org-node"><div class="role">Koordinator</div><div class="name">Publikasi &amp; Humas</div></div>
+            <div class="org-node"><div class="role">Koordinator</div><div class="name">Litbang &amp; Asesmen</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visi Misi -->
+      <div class="subpage" id="sub-visimisi">
+        <div class="vm-grid">
+          <div class="vm-panel visi">
+            <div class="eyebrow">Visi</div>
+            <p class="big">"Menjadi wadah kolaborasi guru IPS yang profesional, inovatif, dan berdaya saing dalam mewujudkan pembelajaran IPS yang bermakna bagi peserta didik di Kota Semarang."</p>
+          </div>
+          <div class="vm-panel misi">
+            <div class="eyebrow">Misi</div>
+            <ol>
+              <li>Meningkatkan kompetensi pedagogik dan profesional guru IPS secara berkelanjutan.</li>
+              <li>Mengembangkan perangkat pembelajaran dan asesmen yang kontekstual dan mutakhir.</li>
+              <li>Membangun jejaring kemitraan dengan lembaga, industri, dan perguruan tinggi.</li>
+              <li>Mendorong inovasi pembelajaran berbasis literasi, numerasi, dan teknologi.</li>
+              <li>Menumbuhkan budaya berbagi praktik baik antarsekolah se-Kota Semarang.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Program Kerja -->
+      <div class="subpage" id="sub-proker">
+        <div class="proker-list">
+          <div class="proker-item"><div class="tag">Rutin</div><h4>Pertemuan Bulanan MGMP</h4><p>Forum diskusi rutin membahas isu kurikulum, tantangan kelas, dan pemutakhiran materi ajar.</p></div>
+          <div class="proker-item"><div class="tag">Pelatihan</div><h4>Workshop Penyusunan Modul Ajar</h4><p>Pendampingan penyusunan ATP, modul ajar, dan asesmen berbasis Kurikulum Merdeka.</p></div>
+          <div class="proker-item"><div class="tag">Pelatihan</div><h4>In House Training (IHT)</h4><p>Pelatihan internal tematik: literasi keuangan, media digital, dan asesmen literasi-numerasi.</p></div>
+          <div class="proker-item"><div class="tag">Kemitraan</div><h4>MGMP Goes to Campus &amp; Lembaga</h4><p>Kunjungan belajar dan kegiatan bersama BI, OJK, UNNES, Tanoto Foundation, dan mitra lain.</p></div>
+          <div class="proker-item"><div class="tag">Publikasi</div><h4>Diseminasi Praktik Baik</h4><p>Penerbitan artikel, dokumentasi kegiatan, dan berbagi media ajar antaranggota.</p></div>
+          <div class="proker-item"><div class="tag">Kompetisi</div><h4>Lomba &amp; Apresiasi Guru IPS</h4><p>Ajang apresiasi inovasi pembelajaran dan karya ilmiah guru IPS se-Kota Semarang.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ KEGIATAN ============ -->
+<div class="page" id="page-kegiatan">
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Kegiatan &amp; Kemitraan</div>
+        <h2>Tujuh jalur kolaborasi lintas lembaga.</h2>
+        <p>MGMP IPS Kota Semarang membangun kemitraan strategis untuk memperkaya sumber belajar dan wawasan guru maupun siswa.</p>
+      </div>
+
+      <div class="kegiatan-grid">
+        <div class="kegiatan-card" id="k-bi">
+          <div class="mark">01</div>
+          <h4>Kerja Sama Bank Indonesia</h4>
+          <p>Edukasi ekonomi dan keuangan, program cinta rupiah, serta kunjungan edukatif ke Kantor Perwakilan Bank Indonesia Provinsi Jawa Tengah.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-ojk">
+          <div class="mark">02</div>
+          <h4>Kerjasama OJK</h4>
+          <p>Program literasi dan inklusi keuangan, sosialisasi jasa keuangan syariah, serta pelatihan Duta Literasi Keuangan bagi siswa.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-s1">
+          <div class="mark">03</div>
+          <h4>Kerja Sama Prodi S1 IPS UNNES</h4>
+          <p>Kolaborasi PPL mahasiswa, penelitian tindakan kelas bersama, dan seminar pendidikan IPS terkini.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-s2">
+          <div class="mark">04</div>
+          <h4>Kerjasama Prodi S2 UNNES</h4>
+          <p>Pendampingan penulisan karya ilmiah dan publikasi, serta seminar akademik jenjang pascasarjana.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-tanoto">
+          <div class="mark">05</div>
+          <h4>Kerjasama Tanoto Foundation</h4>
+          <p>Pelatihan pembelajaran aktif dan kepemimpinan pembelajaran melalui program PINTAR.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-inveskids">
+          <div class="mark">06</div>
+          <h4>Kerja Sama Inveskids</h4>
+          <p>Edukasi investasi dan literasi keuangan untuk siswa melalui pendekatan gamifikasi dan simulasi.</p>
+          <div class="status">Aktif</div>
+        </div>
+        <div class="kegiatan-card" id="k-erlangga">
+          <div class="mark">07</div>
+          <h4>Erlangga</h4>
+          <p>Penyediaan buku ajar, bedah kurikulum, dan pelatihan pemanfaatan media ajar digital penerbit.</p>
+          <div class="status">Aktif</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ ARTIKEL ============ -->
+<div class="page" id="page-artikel">
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Artikel</div>
+        <h2>Catatan lapangan dari ruang kelas IPS.</h2>
+        <p>Tulisan seputar strategi pembelajaran, refleksi kegiatan, dan wawasan kebijakan pendidikan IPS.</p>
+      </div>
+      <div class="artikel-grid">
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#3F6357,#1F2D3D);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Pedagogi</div>
+            <h4>Strategi Pembelajaran IPS Berbasis Proyek di Kelas 7</h4>
+            <p>Menerapkan pembelajaran berbasis proyek untuk menumbuhkan kepekaan sosial siswa terhadap isu lingkungan sekitar.</p>
+            <div class="artikel-meta"><span>12 Jul 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#B07C31,#8C5F22);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Literasi Keuangan</div>
+            <h4>Mengintegrasikan Literasi Keuangan dalam Pembelajaran IPS</h4>
+            <p>Belajar dari kemitraan bersama OJK dan Bank Indonesia untuk membumikan konsep keuangan di kelas.</p>
+            <div class="artikel-meta"><span>28 Jun 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#A63D40,#1F2D3D);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Asesmen</div>
+            <h4>Menyongsong Asesmen Nasional: Catatan untuk Guru IPS</h4>
+            <p>Tips menyusun soal literasi membaca dan numerasi kontekstual dari materi geografi dan sejarah.</p>
+            <div class="artikel-meta"><span>15 Jun 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#1F2D3D,#3F6357);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Teknologi</div>
+            <h4>Pemanfaatan Peta Digital dalam Pembelajaran Geografi</h4>
+            <p>Mengenalkan Google Earth dan peta interaktif sebagai media eksplorasi ruang bagi siswa SMP.</p>
+            <div class="artikel-meta"><span>2 Jun 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#8C5F22,#A63D40);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Kegiatan</div>
+            <h4>Refleksi Kunjungan Edukasi ke Kantor Bank Indonesia</h4>
+            <p>Catatan perjalanan belajar bersama siswa dan guru dalam program cinta rupiah dan pengendalian inflasi.</p>
+            <div class="artikel-meta"><span>20 Mei 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+        <article class="artikel-card">
+          <div class="artikel-thumb" style="background:linear-gradient(135deg,#3F6357,#B07C31);"></div>
+          <div class="artikel-body">
+            <div class="artikel-cat">Kurikulum</div>
+            <h4>Menyusun Modul Ajar IPS yang Kontekstual dengan Semarang</h4>
+            <p>Menghadirkan Kota Lama, Lawang Sewu, dan sejarah maritim Semarang ke dalam bahan ajar sejarah lokal.</p>
+            <div class="artikel-meta"><span>4 Mei 2026</span><a href="#">Baca →</a></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ GALERI ============ -->
+<div class="page" id="page-galeri">
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Galeri</div>
+        <h2>Jejak dokumentasi kegiatan.</h2>
+        <p>Kumpulan momen dari workshop, kunjungan kemitraan, dan pertemuan rutin MGMP. <em>(Ganti panel di bawah dengan foto kegiatan sesungguhnya.)</em></p>
+      </div>
+      <div class="galeri-grid">
+        <div class="galeri-item tall" style="background:#3F6357;"><div class="caption">Workshop Kurikulum Merdeka — 2026</div></div>
+        <div class="galeri-item" style="background:#B07C31;"><div class="caption">Kunjungan ke Bank Indonesia Jateng</div></div>
+        <div class="galeri-item" style="background:#1F2D3D;"><div class="caption">Pelatihan Tanoto Foundation</div></div>
+        <div class="galeri-item" style="background:#A63D40;"><div class="caption">Seminar Bersama Prodi S2 UNNES</div></div>
+        <div class="galeri-item" style="background:#5C8577;"><div class="caption">Pertemuan Rutin Bulanan</div></div>
+        <div class="galeri-item tall" style="background:#8C5F22;"><div class="caption">Edukasi Literasi Keuangan OJK</div></div>
+        <div class="galeri-item" style="background:#1F2D3D;"><div class="caption">PPL Mahasiswa S1 IPS UNNES</div></div>
+        <div class="galeri-item" style="background:#3F6357;"><div class="caption">Bedah Buku Bersama Erlangga</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ DOWNLOAD ============ -->
+<div class="page" id="page-download">
+  <section class="block">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="eyebrow">Pusat Unduhan</div>
+        <h2>Perangkat ajar, siap dipakai di kelas.</h2>
+        <p>Kumpulan perangkat pembelajaran, soal asesmen, dan media ajar hasil kolaborasi anggota MGMP IPS Kota Semarang.</p>
+      </div>
+
+      <div class="dl-tabs" id="dlTabs">
+        <button data-sub="kelas7" class="active">Perangkat Kelas 7</button>
+        <button data-sub="kelas8">Perangkat Kelas 8</button>
+        <button data-sub="kelas9">Perangkat Kelas 9</button>
+        <button data-sub="asesmen">Soal Asesmen</button>
+        <button data-sub="media">Media Ajar</button>
+      </div>
+
+      <!-- KELAS 7 -->
+      <div class="dl-subpage active" id="dl-kelas7">
+        <div class="dl-group">
+          <h4>Perangkat Semester 1</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 7 — Bab 1: Keluarga Awal Kehidupan Manusia <span class="meta">2.4 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 7 — Bab 2: Keragaman Lingkungan Alam <span class="meta">2.1 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">XLSX</span> Prota &amp; Promes Kelas 7 <span class="meta">340 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Alur Tujuan Pembelajaran (ATP) Kelas 7 <span class="meta">560 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Perangkat Semester 2</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 7 — Bab 3: Potensi Ekonomi Lingkungan <span class="meta">2.6 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 7 — Bab 4: Kehidupan Sosial Masyarakat <span class="meta">2.3 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Kriteria Ketercapaian Tujuan Pembelajaran (KKTP) <span class="meta">410 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+      </div>
+
+      <!-- KELAS 8 -->
+      <div class="dl-subpage" id="dl-kelas8">
+        <div class="dl-group">
+          <h4>Perangkat Semester 1</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 8 — Bab 1: Kondisi Geografis ASEAN <span class="meta">2.5 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 8 — Bab 2: Perubahan Sosial &amp; Globalisasi <span class="meta">2.2 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">XLSX</span> Prota &amp; Promes Kelas 8 <span class="meta">330 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Perangkat Semester 2</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 8 — Bab 3: Kesadaran Nasional Pergerakan Kemerdekaan <span class="meta">2.7 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Alur Tujuan Pembelajaran (ATP) Kelas 8 <span class="meta">540 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+      </div>
+
+      <!-- KELAS 9 -->
+      <div class="dl-subpage" id="dl-kelas9">
+        <div class="dl-group">
+          <h4>Perangkat Semester 1</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 9 — Bab 1: Negara Berkembang &amp; Maju <span class="meta">2.6 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 9 — Bab 2: Perang Dunia &amp; Kemerdekaan Indonesia <span class="meta">2.9 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">XLSX</span> Prota &amp; Promes Kelas 9 <span class="meta">345 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Perangkat Semester 2 &amp; Persiapan Kelulusan</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Modul Ajar IPS Kelas 9 — Bab 3: Kerja Sama Antarnegara <span class="meta">2.4 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Kisi-Kisi Ujian Sekolah IPS Kelas 9 <span class="meta">480 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+      </div>
+
+      <!-- ASESMEN -->
+      <div class="dl-subpage" id="dl-asesmen">
+        <div class="dl-group">
+          <h4>Asesmen Sumatif</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Soal Sumatif Tengah Semester IPS Kelas 7 <span class="meta">610 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Soal Sumatif Akhir Semester IPS Kelas 8 <span class="meta">720 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Soal Sumatif Akhir Semester IPS Kelas 9 <span class="meta">700 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Asesmen Formatif &amp; Diagnostik</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">DOCX</span> Bank Soal Formatif Harian IPS (Semua Jenjang) <span class="meta">1.1 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Asesmen Diagnostik Awal Tahun Ajaran <span class="meta">390 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Simulasi Asesmen Nasional</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Latihan Literasi Membaca Berbasis Konteks IPS <span class="meta">650 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> Latihan Numerasi Terintegrasi Materi Ekonomi <span class="meta">580 KB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+      </div>
+
+      <!-- MEDIA AJAR -->
+      <div class="dl-subpage" id="dl-media">
+        <div class="dl-group">
+          <h4>Media Presentasi</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PPTX</span> Slide Interaktif — Peta &amp; Kondisi Geografis Indonesia <span class="meta">5.2 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PPTX</span> Slide Interaktif — Sejarah Pergerakan Nasional <span class="meta">4.8 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+        <div class="dl-group">
+          <h4>Lembar Kerja &amp; Video</h4>
+          <div class="dl-row"><div class="dl-name"><span class="ext">PDF</span> LKPD Interaktif — Aktivitas Ekonomi Masyarakat Pesisir <span class="meta">1.4 MB</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">MP4</span> Video Pembelajaran — Mengenal Kota Lama Semarang <span class="meta">Tautan Drive</span></div><a class="dl-btn" href="#">Unduh</a></div>
+          <div class="dl-row"><div class="dl-name"><span class="ext">MP4</span> Video Pembelajaran — Simulasi Inflasi Sederhana <span class="meta">Tautan Drive</span></div><a class="dl-btn" href="#">Unduh</a></div>
+        </div>
+      </div>
+
+      <div class="dl-note">Catatan: tautan unduhan pada halaman ini masih berupa placeholder. Sambungkan setiap tombol "Unduh" ke tautan Google Drive/Sekolah Digital resmi milik MGMP agar dapat diakses anggota.</div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="foot-brand">MGMP IPS Kota Semarang</div>
+        <p>Musyawarah Guru Mata Pelajaran Ilmu Pengetahuan Sosial — jenjang SMP se-Kota Semarang, Jawa Tengah.</p>
+      </div>
+      <div>
+        <h5>Navigasi</h5>
+        <ul>
+          <li><a href="#" data-page="profil">Profil</a></li>
+          <li><a href="#" data-page="kegiatan">Kegiatan</a></li>
+          <li><a href="#" data-page="artikel">Artikel</a></li>
+          <li><a href="#" data-page="galeri">Galeri</a></li>
+          <li><a href="#" data-page="download">Download</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Kemitraan</h5>
+        <ul>
+          <li><a href="#" data-page="kegiatan" data-anchor="k-bi">Bank Indonesia</a></li>
+          <li><a href="#" data-page="kegiatan" data-anchor="k-ojk">OJK</a></li>
+          <li><a href="#" data-page="kegiatan" data-anchor="k-s1">UNNES (S1 &amp; S2)</a></li>
+          <li><a href="#" data-page="kegiatan" data-anchor="k-tanoto">Tanoto Foundation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Kontak</h5>
+        <ul>
+          <li>Sekretariat MGMP IPS</li>
+          <li>Kota Semarang, Jawa Tengah</li>
+          <li>mgmpips.semarang@email.com</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 MGMP IPS Kota Semarang</span>
+      <span>Dibuat untuk kebutuhan koordinasi guru IPS se-Kota Semarang</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- Page switching ----
+  const pages = document.querySelectorAll('.page');
+  function showPage(pageId, opts={}){
+    pages.forEach(p => p.classList.toggle('active', p.id === 'page-'+pageId));
+    document.querySelectorAll('nav.mainnav > ul > li').forEach(li => li.classList.remove('active'));
+    document.querySelectorAll(`nav.mainnav a[data-page="${pageId}"]`).forEach(a=>{
+      const li = a.closest('li');
+      if(li) li.classList.add('active');
+    });
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+
+    if(opts.sub){
+      // profil subtabs
+      if(pageId === 'profil'){ setProfilSub(opts.sub); }
+      if(pageId === 'download'){ setDlSub(opts.sub); }
+    }
+    if(opts.anchor){
+      setTimeout(()=>{
+        const el = document.getElementById(opts.anchor);
+        if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+      }, 60);
+    }
+    closeMobileNav();
+  }
+
+  document.querySelectorAll('[data-page]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const pageId = el.getAttribute('data-page');
+      const sub = el.getAttribute('data-sub');
+      const anchor = el.getAttribute('data-anchor');
+      showPage(pageId, {sub, anchor});
+    });
+  });
+
+  // ---- Profil subtabs ----
+  const profilTabs = document.getElementById('profilTabs');
+  function setProfilSub(sub){
+    document.querySelectorAll('#profilTabs button').forEach(b=>b.classList.toggle('active', b.dataset.sub===sub));
+    document.querySelectorAll('#page-profil .subpage').forEach(s=>s.classList.toggle('active', s.id === 'sub-'+sub));
+  }
+  profilTabs.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=> setProfilSub(btn.dataset.sub));
+  });
+
+  // ---- Download subtabs ----
+  const dlTabs = document.getElementById('dlTabs');
+  function setDlSub(sub){
+    document.querySelectorAll('#dlTabs button').forEach(b=>b.classList.toggle('active', b.dataset.sub===sub));
+    document.querySelectorAll('#page-download .dl-subpage').forEach(s=>s.classList.toggle('active', s.id === 'dl-'+sub));
+  }
+  dlTabs.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=> setDlSub(btn.dataset.sub));
+  });
+
+  // ---- Mobile nav ----
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mainnav = document.getElementById('mainnav');
+  burgerBtn.addEventListener('click', ()=> mainnav.classList.toggle('open'));
+  function closeMobileNav(){ mainnav.classList.remove('open'); document.querySelectorAll('li.has-dropdown.open').forEach(li=>li.classList.remove('open')); }
+
+  // mobile dropdown toggle (tap to expand instead of hover)
+  document.querySelectorAll('li.has-dropdown > .navtop').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      if(window.innerWidth <= 900){
+        e.stopPropagation();
+        const li = btn.closest('li');
+        const wasOpen = li.classList.contains('open');
+        document.querySelectorAll('li.has-dropdown.open').forEach(l=>l.classList.remove('open'));
+        if(!wasOpen) li.classList.add('open');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
